@@ -1,6 +1,6 @@
 //* MNT
 require("dotenv").config();
-// require("./db/connection.js");
+require("./db/connection.js");
 const express = require("express");
 const morgan = require("morgan");
 // const cors = require("cors");
