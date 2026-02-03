@@ -1,12 +1,13 @@
+//* MNT
 const Track = require("../models/Track.js");
 
 const express = require("express");
 const router = express.Router();
 
+//* ROUTE
 // POST /tracks
 router.post("/", async (req, res) => {
   try {
-    console.log("GOT A POST REQUEST FROM ", req.url)
     const newTrack = await Track.create(req.body);
     res.status(201).json({
       message: "Successfully created new track.",
@@ -17,4 +18,37 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Show - GET '/:trackId' => Search by ID, Show one Track entry
+router.get('/:trackId', async (req,res) => {
+    try {
+        const foundTrack = await Track.findById(req.params.trackId);
+        if (foundTrack) {
+            res.json(foundTrack)
+        } else {
+            throw new Error("404 Not Found. Please try another Search")
+        }
+    } catch (err) {
+        handleError(req,res,err, 404);
+    }
+})
+
+//* IO
 module.exports = router;
+
+//* FUNC
+// I use this/similar function(s) in my controllers as a universal error handler.
+// It's like Morgan, but custom and automatically sends a response to the client.
+// For a simple app like this, it may be a bit overngineered, 
+// but it's copy/paste, provides a solid format with automatic defaults, 
+// and simplifies code above when using defaults.
+// Default call: handleError(req,res,err);
+function handleError(req,res,err=null, code=500, title, callback) {
+    const info = `Internal Server ERROR! (${code}) | ${req.method} => ${req.url}`
+    console.error(info, err)
+    callback() || res.status(code).json({
+        code: code,
+        title: title || "The server encountered an error. Please try your request again later.",
+        info,
+        message: err.message || err || null
+    });
+}
