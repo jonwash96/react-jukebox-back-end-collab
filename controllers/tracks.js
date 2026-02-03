@@ -59,6 +59,17 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// DELETE /tracks/:id - delete (200)
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedTrack = await Track.findByIdAndDelete(req.params.id);
+    return res.status(200).json(deletedTrack);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Failed to delete track." });
+  }
+});
+
 //* IO
 module.exports = router;
 
