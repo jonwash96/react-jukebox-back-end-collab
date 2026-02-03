@@ -41,6 +41,24 @@ router.get("/:trackId", async (req, res) => {
   }
 });
 
+// PUT /tracks/:id - update (200)
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedTrack = await Track.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+    return res.status(200).json(updatedTrack);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Failed to update track." });
+  }
+});
+
 //* IO
 module.exports = router;
 
