@@ -37,7 +37,7 @@ router.get("/:trackId", async (req, res) => {
       throw new Error("404 Not Found. Please try another Search");
     }
   } catch (err) {
-    handleError(req, res, err, 404);
+    return res.status(500).json({ error: "Failed to fetch track." });
   }
 });
 
@@ -62,8 +62,11 @@ router.put("/:id", async (req, res) => {
 // DELETE /tracks/:id - delete (200)
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedTrack = await Track.findByIdAndDelete(req.params.id);
-    return res.status(200).json(deletedTrack);
+    let track = await Track.findById(req.params.id);
+    track = await track.deleteOne();
+    console.log("Deletion Response", track);
+    if (track.deletedCount===0) throw new Error("Failed to Delete Track.");
+    return res.status(204).json(track);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Failed to delete track." });
@@ -72,24 +75,3 @@ router.delete("/:id", async (req, res) => {
 
 //* IO
 module.exports = router;
-
-//* FUNC
-// I use this/similar function(s) in my controllers as a universal error handler.
-// It's like Morgan, but custom and automatically sends a response to the client.
-// For a simple app like this, it may be a bit overngineered,
-// but it's copy/paste, provides a solid format with automatic defaults,
-// and simplifies code above when using defaults.
-// Default call: handleError(req,res,err);
-function handleError(req, res, err = null, code = 500, title, callback) {
-  const info = `Internal Server ERROR! (${code}) | ${req.method} => ${req.url}`;
-  console.error(info, err);
-  callback() ||
-    res.status(code).json({
-      code: code,
-      title:
-        title ||
-        "The server encountered an error. Please try your request again later.",
-      info,
-      message: err.message || err || null,
-    });
-}
