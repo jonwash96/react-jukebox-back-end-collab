@@ -64,7 +64,6 @@ router.delete("/:id", async (req, res) => {
   try {
     let track = await Track.findById(req.params.id);
     track = await track.deleteOne();
-    console.log("Deletion Response", track);
     if (track.deletedCount===0) throw new Error("Failed to Delete Track.");
     return res.status(204).json(track);
   } catch (error) {
